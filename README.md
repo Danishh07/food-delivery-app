@@ -1,229 +1,176 @@
-# Food Delivery App Backend
+# Food Delivery App - Deployment Guide
 
-A microservices-based food delivery application backend built with FastAPI, PostgreSQL, and Docker.
+This guide provides detailed instructions for deploying the Food Delivery App microservices using Render's free tier.
 
-## Architecture
+## Overview
 
-The application consists of 3 microservices:
+The Food Delivery App consists of three microservices:
+- **User Service**: Manages user accounts and orders
+- **Restaurant Service**: Manages restaurants, menus, and order acceptance
+- **Delivery Agent Service**: Manages delivery agents and order delivery status
 
-1. **User Service** (Port 8001)
-   - View available restaurants with menus
-   - Place orders from restaurants
-   - Rate completed orders and delivery agents
-   - View order history
+## Prerequisites
 
-2. **Restaurant Service** (Port 8002)
-   - Create and manage restaurants
-   - Update menu items, pricing, and availability
-   - Toggle restaurant online/offline status
-   - Accept/reject incoming orders
-   - Auto-assign available delivery agents to accepted orders
+1. A GitHub account
+2. Your Food Delivery App code pushed to a GitHub repository
+3. A Render account (sign up at [render.com](https://render.com))
 
-3. **Delivery Agent Service** (Port 8003)
-   - Register delivery agents
-   - Update agent availability status
-   - Receive order assignments from restaurants
-   - Update delivery status throughout the delivery process
-   - View delivery statistics
+## Deployment Options
 
-## Tech Stack
+### Option 1: Deploy using render.yaml (Blueprint)
 
-- **Backend**: FastAPI (Python 3.11)
-- **Database**: PostgreSQL 15
-- **Containerization**: Docker & Docker Compose
-- **API Documentation**: Swagger/OpenAPI (Auto-generated)
-- **ORM**: SQLAlchemy 2.0
-- **Validation**: Pydantic v2
+The easiest way to deploy is using the Render Blueprint defined in `render.yaml`:
 
-## Features Implemented
+1. Push your code to GitHub (if you haven't already)
+2. The `render.yaml` file is already configured with repository URL: `https://github.com/Danishh07/food-delivery-app`
+3. Log in to your Render account
+4. Go to the Dashboard and click "New" > "Blueprint"
+5. Connect your GitHub repository
+6. Render will automatically detect the `render.yaml` file and set up all services and databases
 
-### Core Requirements ✅
-- [x] User Service: Restaurant listing, order placement, rating system
-- [x] Restaurant Service: Menu management, order processing, agent assignment
-- [x] Delivery Agent Service: Status updates, order tracking
-- [x] Microservices architecture with inter-service communication
-- [x] PostgreSQL database with proper schema design
-- [x] RESTful API endpoints for all operations
+### Option 2: Manual Deployment
 
-### Bonus Features ✅
-- [x] Docker containerization for all services
-- [x] Comprehensive API documentation
-- [x] Database relationships and constraints
-- [x] Error handling and validation
-- [x] Postman collection for testing
+If you prefer to deploy each service manually:
 
-## Quick Start
+#### 1. Create PostgreSQL Database
 
-### Option 1: Using Docker (Recommended)
-
-1. **Prerequisites:**
-   - Docker Desktop installed and running
-   - Git (to clone the repository)
-
-2. **Setup:**
-   ```bash
-   # Clone the repository
-   git clone <your-repo-url>
-   cd food-delivery-app
+1. Log in to Render
+2. Go to Dashboard > "New" > "PostgreSQL"
+3. Set up a single database:
+   - **Name**: `food-delivery-app-db`
+   - **Database**: `food_delivery`
+4. Choose the "Free" plan
+5. Note the connection string for your database
    
-   # Start all services
-   docker-compose up --build
-   ```
+> **Important**: Render's free tier only allows 1 active PostgreSQL database, so we'll use a single database with different schemas for each service.
 
-3. **Verify Services:**
-   - User Service: http://localhost:8001/docs
-   - Restaurant Service: http://localhost:8002/docs  
-   - Delivery Agent Service: http://localhost:8003/docs
+#### 2. Deploy User Service
 
-### Option 2: Manual Setup
+1. Go to Dashboard > "New" > "Web Service"
+2. Connect your GitHub repository
+3. Configure the service:
+   - **Name**: `food-delivery-user-service`
+   - **Root Directory**: `user-service` (the subdirectory containing the service)
+   - **Environment**: Python
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:$PORT`
+   - **Plan**: Free
+4. Add environment variables:
+   - `DATABASE_URL`: (Connection string from your database)
+   - `DB_SCHEMA`: `user_service` (This will create a separate schema in the shared database)
+   - `PORT`: `10000`
+   - `RESTAURANT_SERVICE_URL`: `https://food-delivery-restaurant-service.onrender.com`
+   - `DELIVERY_SERVICE_URL`: `https://food-delivery-agent-service.onrender.com`
+5. Click "Create Web Service"
 
-1. **Prerequisites:**
-   - Python 3.11+
-   - PostgreSQL 15+
-   
-2. **Database Setup:**
-   ```sql
-   CREATE DATABASE food_delivery;
-   -- Run the init.sql script to create tables and sample data
-   ```
+#### 3. Deploy Restaurant Service
 
-3. **Install Dependencies:**
+1. Follow the same steps as above, but with these values:
+   - **Name**: `food-delivery-restaurant-service`
+   - **Root Directory**: `restaurant-service`   - Environment variables:
+     - `DATABASE_URL`: (Same connection string as user service)
+     - `DB_SCHEMA`: `restaurant_service` (Different schema for this service)
+     - `PORT`: `10000`
+     - `USER_SERVICE_URL`: `https://food-delivery-user-service.onrender.com`
+     - `DELIVERY_SERVICE_URL`: `https://food-delivery-agent-service.onrender.com`
+
+#### 4. Deploy Delivery Agent Service
+
+1. Follow the same steps as above, but with these values:
+   - **Name**: `food-delivery-agent-service`
+   - **Root Directory**: `delivery-agent-service`   - Environment variables:
+     - `DATABASE_URL`: (Same connection string as other services)
+     - `DB_SCHEMA`: `delivery_service` (Different schema for this service)
+     - `PORT`: `10000`
+     - `USER_SERVICE_URL`: `https://food-delivery-user-service.onrender.com`
+     - `RESTAURANT_SERVICE_URL`: `https://food-delivery-restaurant-service.onrender.com`
+
+## Database Initialization
+
+After deployment, you need to initialize your database schemas for each service:
+
+1. For each service, go to its page in Render and open the "Shell" tab
+2. For each service, run the following commands:
    ```bash
-   # For each service directory
-   cd user-service && pip install -r requirements.txt
-   cd ../restaurant-service && pip install -r requirements.txt  
-   cd ../delivery-agent-service && pip install -r requirements.txt
+   python
    ```
-
-4. **Set Environment Variables:**
-   ```bash
-   export DATABASE_URL="postgresql://username:password@localhost:5432/food_delivery"
-   ```
-
-5. **Run Services:**
-   ```bash
-   # Terminal 1 - User Service
-   cd user-service && uvicorn main:app --port 8001
+   Then in the Python shell:
+   ```python
+   from database import engine
+   from models import Base
+   from sqlalchemy.schema import CreateSchema
+   import sqlalchemy as sa
    
-   # Terminal 2 - Restaurant Service  
-   cd restaurant-service && uvicorn main:app --port 8002
+   # Create the schema first if it doesn't exist
+   from config import DB_SCHEMA
+   conn = engine.connect()
+   if not conn.dialect.has_schema(conn, DB_SCHEMA):
+       conn.execute(sa.schema.CreateSchema(DB_SCHEMA))
+       conn.commit()
    
-   # Terminal 3 - Delivery Agent Service
-   cd delivery-agent-service && uvicorn main:app --port 8003
+   # Create tables in the schema
+   Base.metadata.create_all(bind=engine)
+   exit()
    ```
 
-## API Endpoints
+## Adding Test Data
 
-### User Service (Port 8001)
+After initializing your database schemas, you can add some test data. For example, to add a test delivery agent:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| GET | `/restaurants` | Get all online restaurants with menus |
-| POST | `/orders` | Place a new order |
-| GET | `/orders/{order_id}` | Get order details |
-| POST | `/orders/{order_id}/rate` | Rate an order |
-| POST | `/agents/{agent_id}/rate` | Rate a delivery agent |
+1. Go to the delivery-agent-service page in Render and open the "Shell" tab
+2. Run the following commands:
+   ```bash
+   python
+   ```
+   Then in the Python shell:
+   ```python
+   from database import SessionLocal
+   from models import DeliveryAgent
+   
+   # Create a test agent
+   db = SessionLocal()
+   test_agent = DeliveryAgent(
+       name="Test Agent",
+       email="test.agent@example.com",
+       phone="+1234567890",
+       vehicle_type="car",
+       is_available=True
+   )
+   
+   db.add(test_agent)
+   db.commit()
+   print(f"Created agent with ID: {test_agent.id}")
+   exit()
+   ```
 
-### Restaurant Service (Port 8002)
+## Testing the Deployment
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| POST | `/restaurants` | Create a new restaurant |
-| GET | `/restaurants/{restaurant_id}` | Get restaurant details |
-| PUT | `/restaurants/{restaurant_id}/status` | Update online/offline status |
-| POST | `/restaurants/{restaurant_id}/menu` | Add menu items |
-| PUT | `/restaurants/{restaurant_id}/menu/{item_id}` | Update menu item |
-| GET | `/restaurants/{restaurant_id}/menu` | Get restaurant menu |
-| PUT | `/orders/{order_id}/accept` | Accept an order |
-| PUT | `/orders/{order_id}/reject` | Reject an order |
-| GET | `/orders/pending` | Get pending orders |
+1. Once all services are deployed, verify they're running by visiting:
+   - `https://food-delivery-user-service-5ceu.onrender.com`
+   - `https://food-delivery-restaurant-service-64xo.onrender.com`
+   - `https://food-delivery-agent-service.onrender.com`
 
-### Delivery Agent Service (Port 8003)
+2. Each should return a health check response like: `{"status": "Service is running"}`
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| POST | `/agents` | Register delivery agent |
-| GET | `/agents` | Get all agents |
-| GET | `/agents/{agent_id}` | Get agent details |
-| PUT | `/agents/{agent_id}/status` | Update availability |
-| GET | `/agents/available` | Get available agents |
-| PUT | `/orders/{order_id}/status` | Update delivery status |
-| GET | `/orders/assigned/{agent_id}` | Get agent's assigned orders |
-| GET | `/agents/{agent_id}/stats` | Get delivery statistics |
+3. Use the Swagger UI for each service to test endpoints:
+   - `https://food-delivery-user-service-5ceu.onrender.com/docs`
+   - `https://food-delivery-restaurant-service-64xo.onrender.com/docs`
+   - `https://food-delivery-agent-service.onrender.com/docs`
 
-## Database Schema
+## Important Notes for Free Tier
 
-The application uses a PostgreSQL database with the following main tables:
+- Free services on Render will spin down after 15 minutes of inactivity
+- Initial requests after inactivity may take 30-60 seconds to respond
+- You get 750 free hours per month across all services
+- No credit card is required for the free tier
+- Database storage is limited to 1GB in the free tier
+- Render allows only 1 PostgreSQL database in the free tier
+  - Our solution uses a single database with multiple schemas (one for each service)
+  - Each service will create and manage its own schema automatically
 
-- **users**: Customer information
-- **restaurants**: Restaurant details and status
-- **menu_items**: Restaurant menu with pricing
-- **delivery_agents**: Delivery agent profiles
-- **orders**: Order information and status
-- **order_items**: Items in each order
-- **order_ratings**: Customer ratings for orders
-- **agent_ratings**: Customer ratings for delivery agents
+## Troubleshooting
 
-## Testing
-
-### Using Postman
-1. Import `postman_collection.json` into Postman
-2. Set environment variables:
-   - `user_service_url`: http://localhost:8001
-   - `restaurant_service_url`: http://localhost:8002  
-   - `delivery_service_url`: http://localhost:8003
-3. Run the collection to test all endpoints
-
-### Sample Workflow
-1. **Setup**: Create restaurants and add menu items
-2. **Order Flow**: 
-   - User views restaurants → Places order → Restaurant accepts → Agent delivers
-3. **Rating**: User rates the order and delivery agent
-
-## Deployment
-
-### Heroku Deployment
-See `DEPLOYMENT.md` for detailed deployment instructions to Heroku, Railway, or Render.
-
-### Production Considerations
-- Use environment variables for database credentials
-- Implement proper logging and monitoring  
-- Add authentication and authorization
-- Set up CI/CD pipeline
-- Use a production WSGI server like Gunicorn
-
-## Development
-
-### Adding New Features
-1. Define new API endpoints in the appropriate service
-2. Add database models if needed
-3. Update Pydantic schemas for validation
-4. Add tests and documentation
-5. Update the Postman collection
-
-### Code Structure
-```
-service/
-├── main.py          # FastAPI app and routes
-├── models.py        # SQLAlchemy database models  
-├── schemas.py       # Pydantic validation schemas
-├── database.py      # Database connection setup
-├── requirements.txt # Python dependencies
-├── Dockerfile       # Container configuration
-└── Procfile        # Heroku deployment config
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is created for educational purposes as part of a backend engineering assignment.
+- Check service logs in the Render dashboard for each service
+- Verify environment variables are set correctly
+- Ensure database initialization completed successfully
+- If services can't communicate, verify the service URLs in environment variables

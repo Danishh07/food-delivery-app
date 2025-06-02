@@ -45,12 +45,27 @@ debug_*.py
 direct_debug.py
 *_test.py
 test_*.py
+test_api.py
+test_services.py
+test_order_status.py
+simple_test.py
 !solution_test.py  # Keep this test file as it's the main verification test
 debug_output*.txt
 *.log
 
-# Local setup files
+# Setup and documentation files
 setup_local.ps1
+setup.ps1
+setup.sh
+hello.py
+DEPLOYMENT.md
+README_DEPLOYMENT.md  # Keep the main README.md though
+
+# Other non-essential files
+check_modules.py
+git_setup.ps1
+quick_test.py
+complete_test.py
 
 # Cache files
 *.pyc
