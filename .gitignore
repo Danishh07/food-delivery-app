@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+debug_output.txt
+debug_output_2.txt
+
+# Local environment
+.env
+.env.local
+venv/
+env/
+
+# Debug files
+debug_*.py
+direct_debug.py
+*_test.py
+test_*.py
+!solution_test.py  # Keep this test file as it's the main verification test
+debug_output*.txt
+*.log
+
+# Local setup files
+setup_local.ps1
+
+# Cache files
+*.pyc
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp

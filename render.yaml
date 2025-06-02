@@ -1,0 +1,77 @@
+# Render Blueprint for Food Delivery App
+# This file defines the services and databases needed to deploy the application on Render
+
+services:  - type: web
+    name: food-delivery-user-service
+    env: python
+    repo: https://github.com/yourusername/food-delivery-app
+    buildCommand: cd user-service && pip install -r requirements.txt
+    startCommand: cd user-service && gunicorn -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:$PORT
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: PORT
+        value: 10000
+      - key: DB_SCHEMA
+        value: user_service
+      - key: RESTAURANT_SERVICE_URL
+        value: https://food-delivery-restaurant-service.onrender.com
+      - key: DELIVERY_SERVICE_URL
+        value: https://food-delivery-agent-service.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: food-delivery-app-db
+          property: connectionString
+  - type: web
+    name: food-delivery-restaurant-service
+    env: python
+    repo: https://github.com/yourusername/food-delivery-app
+    buildCommand: cd restaurant-service && pip install -r requirements.txt
+    startCommand: cd restaurant-service && gunicorn -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:$PORT
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: PORT
+        value: 10000
+      - key: DB_SCHEMA
+        value: restaurant_service
+      - key: USER_SERVICE_URL
+        value: https://food-delivery-user-service.onrender.com
+      - key: DELIVERY_SERVICE_URL
+        value: https://food-delivery-agent-service.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: food-delivery-app-db
+          property: connectionString
+  - type: web
+    name: food-delivery-agent-service
+    env: python
+    repo: https://github.com/yourusername/food-delivery-app
+    buildCommand: cd delivery-agent-service && pip install -r requirements.txt
+    startCommand: cd delivery-agent-service && gunicorn -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:$PORT
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: PORT
+        value: 10000
+      - key: DB_SCHEMA
+        value: delivery_service
+      - key: USER_SERVICE_URL
+        value: https://food-delivery-user-service.onrender.com
+      - key: RESTAURANT_SERVICE_URL
+        value: https://food-delivery-restaurant-service.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: food-delivery-app-db
+          property: connectionString
+
+databases:
+  - name: food-delivery-app-db
+    plan: free
+    databaseName: food_delivery

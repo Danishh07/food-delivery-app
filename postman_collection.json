@@ -1,0 +1,391 @@
+{
+	"info": {
+		"_postman_id": "food-delivery-api",
+		"name": "Food Delivery App API",
+		"description": "API collection for testing the Food Delivery App microservices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "user_service_url",
+			"value": "http://localhost:8001",
+			"type": "string"
+		},
+		{
+			"key": "restaurant_service_url",
+			"value": "http://localhost:8002",
+			"type": "string"
+		},
+		{
+			"key": "delivery_service_url",
+			"value": "http://localhost:8003",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "User Service",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{user_service_url}}/",
+							"host": ["{{user_service_url}}"],
+							"path": [""]
+						}
+					}
+				},
+				{
+					"name": "Get Online Restaurants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{user_service_url}}/restaurants",
+							"host": ["{{user_service_url}}"],
+							"path": ["restaurants"]
+						}
+					}
+				},
+				{
+					"name": "Place Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 1,\n  \"restaurant_id\": 1,\n  \"delivery_address\": \"123 Main St, City\",\n  \"special_instructions\": \"Ring the doorbell\",\n  \"items\": [\n    {\n      \"menu_item_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"menu_item_id\": 2,\n      \"quantity\": 1\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{user_service_url}}/orders",
+							"host": ["{{user_service_url}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Rate Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent food and service!\"\n}"
+						},
+						"url": {
+							"raw": "{{user_service_url}}/orders/1/rate?user_id=1",
+							"host": ["{{user_service_url}}"],
+							"path": ["orders", "1", "rate"],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Rate Delivery Agent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 4,\n  \"comment\": \"Fast delivery!\"\n}"
+						},
+						"url": {
+							"raw": "{{user_service_url}}/agents/1/rate?user_id=1&order_id=1",
+							"host": ["{{user_service_url}}"],
+							"path": ["agents", "1", "rate"],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "1"
+								},
+								{
+									"key": "order_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Restaurant Service",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_service_url}}/",
+							"host": ["{{restaurant_service_url}}"],
+							"path": [""]
+						}
+					}
+				},
+				{
+					"name": "Create Restaurant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Restaurant\",\n  \"address\": \"456 Food Street\",\n  \"phone\": \"+1234567890\",\n  \"cuisine_type\": \"Mexican\"\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_service_url}}/restaurants",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["restaurants"]
+						}
+					}
+				},
+				{
+					"name": "Update Restaurant Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_online\": true\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_service_url}}/restaurants/1/status",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["restaurants", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Add Menu Items",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"name\": \"Tacos\",\n      \"description\": \"Delicious beef tacos\",\n      \"price\": 8.99,\n      \"category\": \"Main Course\",\n      \"is_available\": true\n    },\n    {\n      \"name\": \"Guacamole\",\n      \"description\": \"Fresh avocado dip\",\n      \"price\": 4.99,\n      \"category\": \"Appetizer\",\n      \"is_available\": true\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_service_url}}/restaurants/1/menu",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["restaurants", "1", "menu"]
+						}
+					}
+				},
+				{
+					"name": "Get Restaurant Menu",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_service_url}}/restaurants/1/menu",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["restaurants", "1", "menu"]
+						}
+					}
+				},
+				{
+					"name": "Accept Order",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_service_url}}/orders/1/accept",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["orders", "1", "accept"]
+						}
+					}
+				},
+				{
+					"name": "Reject Order",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_service_url}}/orders/1/reject",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["orders", "1", "reject"]
+						}
+					}
+				},
+				{
+					"name": "Get Pending Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_service_url}}/orders/pending?restaurant_id=1",
+							"host": ["{{restaurant_service_url}}"],
+							"path": ["orders", "pending"],
+							"query": [
+								{
+									"key": "restaurant_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Delivery Agent Service",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_service_url}}/",
+							"host": ["{{delivery_service_url}}"],
+							"path": [""]
+						}
+					}
+				},
+				{
+					"name": "Register Agent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Driver\",\n  \"email\": \"john.driver@example.com\",\n  \"phone\": \"+1234567890\",\n  \"vehicle_type\": \"motorcycle\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_service_url}}/agents",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["agents"]
+						}
+					}
+				},
+				{
+					"name": "Get All Agents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_service_url}}/agents",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["agents"]
+						}
+					}
+				},
+				{
+					"name": "Update Agent Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_available\": true\n}"
+						},
+						"url": {
+							"raw": "{{delivery_service_url}}/agents/1/status",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["agents", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"picked_up\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_service_url}}/orders/1/status?agent_id=1",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["orders", "1", "status"],
+							"query": [
+								{
+									"key": "agent_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Agent Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_service_url}}/orders/assigned/1",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["orders", "assigned", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Agent Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_service_url}}/agents/1/stats",
+							"host": ["{{delivery_service_url}}"],
+							"path": ["agents", "1", "stats"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
