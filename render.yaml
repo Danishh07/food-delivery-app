@@ -20,11 +20,12 @@ services:
       - key: RESTAURANT_SERVICE_URL
         value: https://food-delivery-restaurant-service.onrender.com
       - key: DELIVERY_SERVICE_URL
-        value: https://food-delivery-agent-service.onrender.com      - key: DATABASE_URL
+        value: https://food-delivery-agent-service.onrender.com
+      - key: DATABASE_URL
         fromDatabase:
           name: food-delivery-app-db
           property: connectionString
-          
+  
   - type: web
     name: food-delivery-restaurant-service
     env: python
@@ -43,7 +44,8 @@ services:
       - key: USER_SERVICE_URL
         value: https://food-delivery-user-service.onrender.com
       - key: DELIVERY_SERVICE_URL
-        value: https://food-delivery-agent-service.onrender.com      - key: DATABASE_URL
+        value: https://food-delivery-agent-service.onrender.com
+      - key: DATABASE_URL
         fromDatabase:
           name: food-delivery-app-db
           property: connectionString
