@@ -22,7 +22,7 @@ The Food Delivery App consists of three microservices:
 The easiest way to deploy is using the Render Blueprint defined in `render.yaml`:
 
 1. Push your code to GitHub (if you haven't already)
-2. Replace `https://github.com/yourusername/food-delivery-app` in `render.yaml` with your actual repository URL
+2. The `render.yaml` file is already configured with repository URL: `https://github.com/Danishh07/food-delivery-app`
 3. Log in to your Render account
 4. Go to the Dashboard and click "New" > "Blueprint"
 5. Connect your GitHub repository
@@ -146,15 +146,15 @@ After initializing your database schemas, you can add some test data. For exampl
 ## Testing the Deployment
 
 1. Once all services are deployed, verify they're running by visiting:
-   - `https://food-delivery-user-service.onrender.com`
-   - `https://food-delivery-restaurant-service.onrender.com`
+   - `https://food-delivery-user-service-5ceu.onrender.com`
+   - `https://food-delivery-restaurant-service-64xo.onrender.com`
    - `https://food-delivery-agent-service.onrender.com`
 
 2. Each should return a health check response like: `{"status": "Service is running"}`
 
 3. Use the Swagger UI for each service to test endpoints:
-   - `https://food-delivery-user-service.onrender.com/docs`
-   - `https://food-delivery-restaurant-service.onrender.com/docs`
+   - `https://food-delivery-user-service-5ceu.onrender.com/docs`
+   - `https://food-delivery-restaurant-service-64xo.onrender.com/docs`
    - `https://food-delivery-agent-service.onrender.com/docs`
 
 ## Important Notes for Free Tier
