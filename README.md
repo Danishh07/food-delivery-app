@@ -36,6 +36,24 @@ This application follows a microservice architecture with:
 3. **Event-based Updates**: Order status changes trigger updates across services
 4. **Shared Database**: In production, services use separate schemas on a single PostgreSQL instance
 
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│   User Service  │◄───►│Restaurant Service│◄───►│ Delivery Service│
+│   (Port 8000)   │     │   (Port 8001)   │     │   (Port 8002)   │
+│                 │     │                 │     │                 │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                       │                       │
+         │                       │                       │
+         │                       ▼                       │
+         │              ┌─────────────────┐              │
+         └─────────────►│                 │◄─────────────┘
+                        │   PostgreSQL    │
+                        │    Database     │
+                        │                 │
+                        └─────────────────┘
+```
+
 ## Features
 
 ### User Service
